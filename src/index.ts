@@ -4,7 +4,6 @@ import path from 'path';
 import { PrismaClient } from '../.generated/client';
 
 const __dirname = import.meta.dirname;
-console.log(__dirname);
 
 const db = new PrismaClient();
 
@@ -145,24 +144,8 @@ app.get('/paste.html', async (req, res) => {
 
 app.get(
   '/paste/:name',
-  async (req: FastifyRequest<{ Params: { name: string } }>, res) => {
+  async (_, res) => {
     return res.sendFile('paste.html');
-    // const { name } = req.params;
-
-    // const paste = await db.paste.findFirst({
-    //   where: {
-    //     name,
-    //     deleted: false
-    //   }
-    // });
-
-    // if (paste === null) {
-    //   return res.code(404).send({
-    //     error: 'Paste not found'
-    //   });
-    // }
-
-    // res.send(paste.body);
   }
 );
 
