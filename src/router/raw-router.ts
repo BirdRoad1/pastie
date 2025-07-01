@@ -4,7 +4,7 @@ import {
   FastifyPluginOptions,
   FastifyRequest
 } from 'fastify';
-import { db } from '../db';
+import { db } from '../db.js';
 
 export const rawRouter = (
   app: FastifyInstance,
