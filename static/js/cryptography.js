@@ -33,6 +33,54 @@ const textDecoder = new TextDecoder();
 const textEncoder = new TextEncoder();
 
 /**
+ * Generate a decryption key from the encrypted content and password
+ * @param {string} encryptedContent
+ * @param {string} password
+ * @returns {string}
+ */
+export async function generateKey(encryptedContent, password) {
+  const subtle = crypto.subtle;
+  const buf = base64ToBuf(encryptedContent);
+  const reader = new Uint8Array(buf);
+
+  const iv = new Uint8Array(12);
+  for (let i = 0; i < iv.length; i++) {
+    iv[i] = reader[i];
+  }
+
+  const salt = new Uint8Array(16);
+  for (let i = 0; i < salt.length; i++) {
+    salt[i] = reader[iv.length + i];
+  }
+
+  const encrypted = new Uint8Array(buf.byteLength - iv.length - salt.length);
+  for (let i = 0; i < encrypted.length; i++) {
+    encrypted[i] = reader[iv.length + salt.length + i];
+  }
+
+  const pass = await subtle.importKey(
+    'raw',
+    textEncoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+
+  const bits = await subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      hash: 'SHA-256',
+      salt: salt,
+      iterations: 600_000
+    },
+    pass,
+    256
+  );
+
+  return bufToBase64(bits);
+}
+
+/**
  * Encrypts a string locally using AES-256 and PBKDF2
  * @param {string} content
  * @param {string} password
@@ -99,9 +147,10 @@ export async function encryptContent(content, password) {
 /**
  * Decrypts an AES-256 encrypted payload
  * @param {string} content
- * @param {string} password
+ * @param {string} passwordOrKey
+ * @param {boolean} isKey
  */
-export async function decryptContent(content, password) {
+export async function decryptContent(content, passwordOrKey, isKey) {
   const subtle = crypto.subtle;
   const buf = base64ToBuf(content);
   const reader = new Uint8Array(buf);
@@ -121,29 +170,39 @@ export async function decryptContent(content, password) {
     encrypted[i] = reader[iv.length + salt.length + i];
   }
 
-  const pass = await subtle.importKey(
-    'raw',
-    textEncoder.encode(password),
-    'PBKDF2',
-    false,
-    ['deriveKey']
-  );
+  /**
+   * @type {CryptoKey}
+   */
+  let key;
 
-  const key = await subtle.deriveKey(
-    {
-      name: 'PBKDF2',
-      hash: 'SHA-256',
-      salt: salt,
-      iterations: 600_000
-    },
-    pass,
-    {
-      name: 'AES-GCM',
-      length: 256
-    },
-    false,
-    ['decrypt']
-  );
+  if (isKey) {
+    const buf = base64ToBuf(passwordOrKey);
+    key = await subtle.importKey('raw', buf, 'AES-GCM', false, ['decrypt']);
+  } else {
+    const pass = await subtle.importKey(
+      'raw',
+      textEncoder.encode(passwordOrKey),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+
+    key = await subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        hash: 'SHA-256',
+        salt: salt,
+        iterations: 600_000
+      },
+      pass,
+      {
+        name: 'AES-GCM',
+        length: 256
+      },
+      false,
+      ['decrypt']
+    );
+  }
 
   const dec = await subtle.decrypt(
     {

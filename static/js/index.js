@@ -1,4 +1,4 @@
-import { encryptContent, decryptContent } from './cryptography.js';
+import { encryptContent, generateKey } from './cryptography.js';
 
 const titleElem = document.getElementById('title');
 const bodyElem = document.getElementById('textarea');
@@ -32,6 +32,7 @@ uploadBtn.addEventListener('click', async () => {
   let title = titleElem.value;
   let body = bodyElem.value;
 
+  let key = '';
   if (visibility === 'ENCRYPTED') {
     const password = passwordBox.value;
 
@@ -41,11 +42,17 @@ uploadBtn.addEventListener('click', async () => {
     }
 
     // encrypt locally
-    body = await encryptContent(body, password);
-    title = await encryptContent(
-      title != null && title.length > 0 ? title : 'Untitled',
+    body = await encryptContent(
+      JSON.stringify({
+        body,
+        title: title != null && title.length > 0 ? title : 'Untitled'
+      }),
       password
     );
+
+    key = await generateKey(body, password);
+
+    title = null;
   }
 
   const res = await fetch('/api/paste', {
@@ -72,7 +79,7 @@ uploadBtn.addEventListener('click', async () => {
 
     // Success
     const url = json.url;
-    location.href = url;
+    location.href = url + '#' + key;
   } catch (err) {
     console.log('Body:', json, ', Error:', err);
     alert('Unexpected response. Check console for more details');

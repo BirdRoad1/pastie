@@ -1,4 +1,4 @@
-import { encryptContent, decryptContent } from './cryptography.js';
+import { encryptContent, decryptContent, generateKey } from './cryptography.js';
 
 const titleElem = document.getElementById('paste-title');
 const pasteContentElem = document.getElementById('paste-content');
@@ -26,22 +26,23 @@ decryptBtn.addEventListener('click', async () => {
   const password = passwordElem.value;
   try {
     const date = new Date(postInfo.createdAt);
-    titleElem.textContent = `${await decryptContent(
-      postInfo.title,
-      password
-    )} • ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-    pasteContentElem.textContent = await decryptContent(
-      postInfo.body,
-      password
+    const { title, body } = JSON.parse(
+      await decryptContent(postInfo.body, password, false)
     );
+
+    const key = await generateKey(postInfo.body, password);
+    location.hash = key;
+
+    titleElem.textContent = `${title} • ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    pasteContentElem.textContent = body;
     passwordElem.value = '';
     passwordElem.remove();
     decryptionElem.classList.remove('visible');
   } catch (err) {
+    console.log(err);
     alert(
       'Decryption failed! You may have entered the password wrong or the data was corrupted.'
     );
-    console.log(err);
   }
 });
 
@@ -68,8 +69,26 @@ async function init() {
 
     const post = JSON.parse(text); //{ title, body, createdAt, visibility }
     if (post.visibility === 'ENCRYPTED') {
-      // encryptedTitle = title;
-      // encryptedContent = body;
+      let key = location.hash;
+      if (key != null && key.length > 0) {
+        key = key.substring(1);
+        try {
+          const date = new Date(post.createdAt);
+          const { title, body } = JSON.parse(
+            await decryptContent(post.body, key, true)
+          );
+
+          titleElem.textContent = `${title} • ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+          pasteContentElem.textContent = body;
+          passwordElem.value = '';
+          passwordElem.remove();
+          decryptionElem.classList.remove('visible');
+          return;
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
       postInfo = post;
       pageTitleElem.textContent = 'View Encrypted Paste';
       decryptionElem.classList.add('visible');
