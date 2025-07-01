@@ -1,9 +1,7 @@
-import fastify, { FastifyRequest } from 'fastify';
+import fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
 import { fileUploadSchema } from './schema/api-schema';
-import { generateUniquePasteName } from './paste';
-import { db } from './db';
 import { pasteRouter } from './api/paste-router';
 
 const __dirname = import.meta.dirname;

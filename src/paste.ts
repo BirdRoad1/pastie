@@ -13,20 +13,20 @@ export function generatePasteName() {
 }
 
 export async function generateUniquePasteName() {
-  let postId = generatePasteName();
+  let postName = generatePasteName();
   let used = true;
   while (used) {
     if (
       (await db.paste.count({
-        where: { name: postId },
+        where: { name: postName },
         take: 1
       })) === 0
     ) {
       used = false;
     } else {
-      postId = generatePasteName();
+      postName = generatePasteName();
     }
   }
 
-  return postId;
+  return postName;
 }
