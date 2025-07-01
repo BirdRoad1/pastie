@@ -2,11 +2,12 @@
   "name": "pastie",
   "version": "1.0.0",
   "description": "Free online paste hosting website",
-  "main": "dist/index.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsx --watch src/index.ts"
+    "build": "tsc && cp package.json dist/",
+    "dev": "tsx --watch src/index.ts",
+    "start": "node index.js"
   },
   "repository": "https://git.jlmsz.com/jluims/pastie.git",
   "author": "jluims",
