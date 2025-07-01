@@ -1,18 +1,22 @@
 import fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
-import { fileUploadSchema } from './schema/api-schema';
-import { pasteRouter } from './router/api/paste-router';
-import { rawRouter } from './router/raw-router';
+import { fileUploadSchema } from './schema/api-schema.js';
+import { pasteRouter } from './router/api/paste-router.js';
+import { rawRouter } from './router/raw-router.js';
 
 const __dirname = import.meta.dirname;
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const app = fastify({
-  logger: process.env.NODE_ENV === 'development'
+  logger: isDev
 });
 
+const staticDir = path.join(__dirname, isDev ? '../static' : './static');
+
 app.register(fastifyStatic, {
-  root: path.join(__dirname, '../static'),
+  root: staticDir,
   prefix: '/'
 });
 
