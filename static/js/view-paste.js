@@ -69,6 +69,8 @@ async function init() {
 
     const post = JSON.parse(text); //{ title, body, createdAt, visibility }
     if (post.visibility === 'ENCRYPTED') {
+      pageTitleElem.textContent = 'View Encrypted Paste';
+
       let key = location.hash;
       if (key != null && key.length > 0) {
         key = key.substring(1);
@@ -90,7 +92,6 @@ async function init() {
       }
 
       postInfo = post;
-      pageTitleElem.textContent = 'View Encrypted Paste';
       decryptionElem.classList.add('visible');
       pasteContentElem.textContent =
         'This paste is encrypted. Enter the password and click "Decrypt" to view this paste.';
