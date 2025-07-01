@@ -24,12 +24,16 @@ app.register(pasteRouter, {
 });
 
 // prevent direct access to paste.html
-app.get('/paste.html', async (req, res) => {
-  res.code(404).send('Not found');
+app.get('/paste.html', async (_, res) => {
+  return res.sendFile('404.html');
 });
 
 app.get('/paste/:name', async (_, res) => {
   return res.sendFile('paste.html');
+});
+
+app.setNotFoundHandler((_, res) => {
+  return res.sendFile('404.html');
 });
 
 app.listen({ port: 8000 }, (err, address) => {
