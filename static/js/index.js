@@ -32,7 +32,7 @@ uploadBtn.addEventListener('click', async () => {
   let title = titleElem.value;
   let body = bodyElem.value;
 
-  let key = '';
+  let key = null;
   if (visibility === 'ENCRYPTED') {
     const password = passwordBox.value;
 
@@ -79,7 +79,7 @@ uploadBtn.addEventListener('click', async () => {
 
     // Success
     const url = json.url;
-    location.href = url + '#' + key;
+    location.href = url + (key != null ? '#' + key : '');
   } catch (err) {
     console.log('Body:', json, ', Error:', err);
     alert('Unexpected response. Check console for more details');
