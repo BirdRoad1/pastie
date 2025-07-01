@@ -2,7 +2,8 @@ import fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
 import { fileUploadSchema } from './schema/api-schema';
-import { pasteRouter } from './api/paste-router';
+import { pasteRouter } from './router/api/paste-router';
+import { rawRouter } from './router/raw-router';
 
 const __dirname = import.meta.dirname;
 
@@ -19,6 +20,10 @@ app.addSchema(fileUploadSchema);
 
 app.register(pasteRouter, {
   prefix: '/api/'
+});
+
+app.register(rawRouter, {
+  prefix: '/raw/'
 });
 
 // prevent direct access to paste.html
