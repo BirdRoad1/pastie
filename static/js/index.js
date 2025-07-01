@@ -31,18 +31,21 @@ uploadBtn.addEventListener('click', async () => {
   const visibility = visibilitySelect.value;
   let title = titleElem.value;
   let body = bodyElem.value;
-  
+
   if (visibility === 'ENCRYPTED') {
     const password = passwordBox.value;
-    
+
     if (password.length < 8) {
       alert('Password must be at least 8 characters');
       return;
     }
-    
+
     // encrypt locally
     body = await encryptContent(body, password);
-    title = await encryptContent(title, password);
+    title = await encryptContent(
+      title != null && title.length > 0 ? title : 'Untitled',
+      password
+    );
   }
 
   const res = await fetch('/api/paste', {
