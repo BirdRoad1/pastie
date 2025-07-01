@@ -4,8 +4,8 @@ import {
   FastifyPluginOptions,
   FastifyRequest
 } from 'fastify';
-import { db } from '../db';
-import { generateUniquePasteName } from '../paste';
+import { db } from '../../db';
+import { generateUniquePasteName } from '../../paste';
 
 type FileUpload = {
   title: string | undefined | null;
