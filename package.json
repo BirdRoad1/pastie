@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "tsc && node transform/sri.js && cp package.json dist/",
+    "build": "tsc && node transform/sri.js && cp -r prisma package.json dist/",
     "dev": "NODE_ENV=development tsc --watch --help",
     "start": "node index.js"
   },
