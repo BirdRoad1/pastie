@@ -43,10 +43,19 @@ app.setNotFoundHandler((_, res) => {
   return res.sendFile('404.html');
 });
 
-app.listen({ port: 8000 }, (err, address) => {
-  if (err) {
-    console.log('Listen failed:', err);
-  } else {
-    console.log(`Listening on ${address}`);
+const port =
+  process.env.PORT !== undefined ? Number.parseInt(process.env.PORT) : 8000;
+
+app.listen(
+  {
+    port,
+    host: '127.0.0.1'
+  },
+  (err, address) => {
+    if (err) {
+      console.log('Listen failed:', err);
+    } else {
+      console.log(`Listening on ${address}`);
+    }
   }
-});
+);
